@@ -1,0 +1,62 @@
+\documentclass{beamer}
+\usepackage{babel}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usetikzlibrary{
+    arrows,
+    positioning,
+    shapes,
+    quotes
+}
+\newcommand{\nodes}[1]{%
+    \foreach \num [count=\n starting from 0] in {#1}{
+      \node[minimum size=3mm, draw, circle,fill=black!10] (n\n) at (\n,0) {\textbf{\num}};
+    }
+}
+\AtBeginSection[ ]
+{
+\begin{frame}{Outline}
+    \tableofcontents[currentsection, hideallsubsections]
+\end{frame}
+}
+\title{Separation Logic}
+\author{Niccolò Piazzesi}
+\institute[UniPi]{
+    Università degli studi di Pisa \\
+    Anno Accademico 2021-22
+}
+\begin{document}
+    \begin{frame}
+        \maketitle
+    \end{frame}
+    \begin{frame}{Outline}
+        \tableofcontents[hideallsubsections]
+    \end{frame}
+    \section{Introduction}
+
+    \begin{frame}
+        ciao \cite{o2001local}
+    \end{frame}
+    \section{Theoretical Foundations}
+    \subsection{The model and assertion language}
+    \subsubsection{Theorem proving}
+    \subsubsection{Examples}
+    \section{Reasoning with separation logic}
+    \subsection{Abstract Intepreation: Biabduction and shape analysis}
+    \subsection{Model checking}
+    \section{Tools}
+    \subsection{Smallfoot}
+    \subsection{Infer}
+    \subsection{SLAyer}
+    \begin{frame}[allowframebreaks]
+     
+        \frametitle{References}
+        \bibliographystyle{unsrt}
+        \bibliography{bib.bib}
+    \end{frame}
+\end{document}
