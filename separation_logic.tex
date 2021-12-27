@@ -38,13 +38,56 @@
         \tableofcontents[hideallsubsections]
     \end{frame}
     \section{Introduction}
+    \begin{frame}
+            \frametitle{Brief recap: reasoning about code}
+            
+            \begin{itemize}
+                \item Program semantics described by logical conditions satisfied by language constructs
+                \item Classical model, first put forward by Robert W. Floyd and Tony Hoare
+            \end{itemize}
+            
+        
+    \end{frame}
+    \begin{frame}
+        \frametitle{Floyd-Hoare Logic in 1 slide}
+        \begin{center}
+            \huge
+            \{P\}S\{Q\}
+        \end{center}
+        \begin{itemize}
+            \item P : pre-conditions
+            \item S : statement
+            \item Q : post conditions
+        \end{itemize}
+        \bigskip
+        
+        Partial correctness: \textbf{If the inital state fullfils pre-conditions and the statement terminates}, the final state satisfies the post conditions.
+        \medskip
+
+        Total correctness: \textbf{If the initial state fullfils the pre-conditions} then the statement terminates and the final state satisfies the post-conditions.
+    \end{frame}
 
     \begin{frame}
-        ciao \cite{o2001local}
+        \frametitle{Limitations}
+        
+        Does not work for non terminating programs 
+        \pause    
+        \bigskip
+        
+        Becomes complex with modular constructs such as objects and unconditional jumps
+        \pause
+        \bigskip
+
+        \textbf{Global view of state becomes a burden when introducing pointers( think of pointer aliasing..)}
+
+        
+    \end{frame}
+    \begin{frame}
+        \frametitle{Motivating example}
     \end{frame}
     \section{Theoretical Foundations}
     \subsection{The model and assertion language}
-    \subsection{Semantics}
+    \subsection{SL proofs}
     \subsection{Examples}
     \section{Reasoning with separation logic}
     \subsection{Abstract Interpretation: Biabduction and symbolic heap  analysis}
@@ -55,6 +98,7 @@
     \subsection{SLAyer}
     \begin{frame}[allowframebreaks]
      
+        \nocite{*}
         \frametitle{References}
         \bibliographystyle{unsrt}
         \bibliography{bib.bib}
