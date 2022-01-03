@@ -5,7 +5,9 @@
 \usepackage[T1]{fontenc}
 \usepackage{tikz}
 \usepackage{graphicx}
+\usepackage{stmaryrd}
 \usepackage{xcolor}
+\usepackage{simplebnf}
 \usepackage{listings}
 \usepackage{amsmath}
 \usetikzlibrary{
@@ -90,27 +92,113 @@
 
         
     \end{frame}
-    \begin{frame}
-        \frametitle{Motivating example}
+\begin{frame}[fragile]
+    \frametitle{Motivating example}
         \begin{columns}
-            \begin{column}{0.5\textwidth}
-                void deletetree(struct node *root)\{
-                            if(root != NULL)\{
-                                struct node *left = root->l;
-                                struct node *right = root->r;
-                                deletetree(left);
-                                deletetree(right);
-                                free(root);
-                            \}
-                    \}   
-            \end{column}
-            \begin{column}{0.5\textwidth}
+    \begin{column}{0.7\textwidth}
+    \begin{lstlisting}
+void deletetree(struct node *root){
+    if(root != NULL){
+    struct node *left = root->l;
+    struct node *right = root->r;
+    deletetree(left);
+    deletetree(right);
+    free(root);
+    }
+}
+    \end{lstlisting}
+        \end{column}
+            \begin{column}{0.3\textwidth}
                 How can we prove memory safety?
             \end{column}
         \end{columns}
     \end{frame}
+    \begin{frame}
+        \frametitle{First attempt}
+
+        
+    \end{frame}
     \section{Theoretical Foundations}
+    Earliest work on separation logic in the late 90s.
     \subsection{The model and assertion language}
+    \begin{frame}
+        \frametitle{The model}
+        \begin{columns}
+            \begin{column}[]{.5\textwidth}
+                Ints $\triangleq \{\cdots, -1, 0 , 1, \cdots\}$
+                
+                \bigskip
+                Atoms, Locations $\subseteq  Ints$
+                
+                \bigskip
+                Stores $\triangleq$ Variables  $\rightharpoonup_{fin}$ Ints
+                
+            \end{column}
+            \begin{column}[]{.5\textwidth}
+                Variables $\triangleq \{x,y,\cdots\}$
+
+                \bigskip
+                Locations $\cap $ Atoms  = \{\}, nil $\in$ Atoms
+
+                \bigskip
+                Heaps $\triangleq$ Locations $\rightharpoonup_{fin}$ Ints
+            \end{column}
+        \end{columns}
+        
+        \bigskip
+        \begin{center}
+        States $\triangleq$ Stores $\times$ Heaps 
+        
+        \bigskip
+        $\llbracket E \rrbracket_s \in Ints$, $\llbracket B \rrbracket_s \in \{\text{true, false}\}$
+        
+        \bigskip
+        $ h \in Heaps$, $h[E] \in Ints$
+        \end{center}
+
+    \end{frame}
+    \begin{frame}
+        \frametitle{The language}
+        
+        Expressions:
+        \begin{equation*}
+            \begin{split}
+            E,F,&G := x,y,\cdots\ |\ 0\ |\ 1\ |\ E + F\ |\ E \times F\ |\ E - F \\
+            &B := false\ |\ B \Rightarrow B\ |\ E=F\ |\ E<F\ |\ isatom?(E)\ | isloc?(E)
+            \end{split}
+        \end{equation*}
+    \pause
+    Assertions:
+     \begin{equation*}
+        \begin{split}
+        P,Q,R ::&= B\ |\ E \mapsto F \hspace{21mm}Atomic\ Formulae \\
+            &|\ false\ |\ P \Rightarrow Q\ |\ \forall x.P \hspace{7mm}Classical\ Logic \\
+            &|\ emp\  |\ P * Q\ |\ P \rightarrow* Q \quad Spatial\ Connectives
+        \end{split}      
+     \end{equation*}
+     
+     \begin{columns}
+         \begin{column}{.5\textwidth}
+             \pause
+             $\neg P = P \Rightarrow False$
+             
+             
+             $true = \neg(false)$
+             
+             
+             $P \vee Q = \neg(P) \Rightarrow Q$  
+         \end{column}
+         \begin{column}{.5\textwidth}
+             \pause
+             $P \wedge Q = \neg(\neg P \vee \neg Q)$
+
+             $\exists x.P = \neg\forall x.\neg P$
+         \end{column}
+     \end{columns}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Semantics}
+    \end{frame}
     \subsection{SL proofs}
     \subsection{Examples}
     \section{Reasoning with separation logic}
