@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[professionalfont]{beamer}
 \usepackage{babel}
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
@@ -10,6 +10,8 @@
 \usepackage{simplebnf}
 \usepackage{listings}
 \usepackage{amsmath}
+\usetheme{material}
+
 \usetikzlibrary{
     arrows,
     positioning,
@@ -119,7 +121,6 @@ void deletetree(struct node *root){
         
     \end{frame}
     \section{Theoretical Foundations}
-    Earliest work on separation logic in the late 90s.
     \subsection{The model and assertion language}
     \begin{frame}
         \frametitle{The model}
@@ -173,7 +174,7 @@ void deletetree(struct node *root){
         \begin{split}
         P,Q,R ::&= B\ |\ E \mapsto F \hspace{21mm}Atomic\ Formulae \\
             &|\ false\ |\ P \Rightarrow Q\ |\ \forall x.P \hspace{7mm}Classical\ Logic \\
-            &|\ emp\  |\ P * Q\ |\ P \rightarrow* Q \quad Spatial\ Connectives
+            &|\ emp\  |\ P * Q\ |\ P\ {-*}\ Q \quad Spatial\ Connectives
         \end{split}      
      \end{equation*}
      
@@ -197,7 +198,63 @@ void deletetree(struct node *root){
      \end{columns}
     \end{frame}
     \begin{frame}
+        \frametitle{Some notation}
+        \begin{enumerate}
+            \item $dom(h)$ and $dom(s)$ denote the domain of definition
+            for $h \in Heaps$ and $s \in Stores$, respectively
+            \bigskip
+            \item $h\#h' \rightarrow dom(h) \cap dom(h') = \emptyset$
+            \bigskip
+            \item $ h \ast h'$ is the union of disjoint heaps
+            \bigskip
+            \item $(f | i \mapsto j)$ represent the partial function that behaves like $f$ except that $i$ goes to $j$.
+        \end{enumerate}
+    \end{frame}
+    \begin{frame}
         \frametitle{Semantics}
+        
+        For store $s$ and heap $h$
+        \scriptsize
+        \begin{card}
+        \pause
+        $s,h \models B\ iff\ \llbracket B \rrbracket_s = true$
+       
+
+        \bigskip
+        $s,h \models  E \mapsto F\ iff\ \{\llbracket E \rrbracket_s\} = dom(h)\ and\ h(\llbracket E \rrbracket_s)=\llbracket F \rrbracket_s$
+        
+        
+        \bigskip
+        $s,h \models false \quad never $
+   
+        
+        \bigskip
+        $s,h \models  P \Rightarrow Q\ iff\ if\ s,h \models P\ then\ s,h \models Q$
+        
+        
+        \bigskip
+        $s,h \models  \forall x.P\ iff\ \forall v \in Ints. [s\ |\ x \mapsto v ],h \models P $
+        \pause
+        
+        \bigskip
+        $s,h \models  emp\ iff\ h=[]\ is\ the\ empty\ heap $
+      
+        \bigskip
+        $s,h \models  P \ast Q\ iff\ \exists h_0, h_1. h_0 \# h_1,\ h_0 \ast h_1 = h,\ s,h_0 \models P\ and\ s,h_1 \models Q $
+        
+        \bigskip
+        $s,h \models  P\ {-*}\ Q\ iff\ \forall h'.\ if\ h'\#h\ and\ s,h' \models P\ then\ s,h\ast h' \models Q$
+       
+        
+        \end{card}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Visual example}
+        \begin{figure}
+        \includegraphics[width=0.9\textwidth]{img/ex1.png}
+        \end{figure}
+       
+
     \end{frame}
     \subsection{SL proofs}
     \subsection{Examples}
