@@ -7,6 +7,7 @@
 \usepackage{graphicx}
 \usepackage{stmaryrd}
 \usepackage{xcolor}
+\usepackage{proof}
 \usepackage{simplebnf}
 \usepackage{listings}
 \usepackage{amsmath}
@@ -209,6 +210,15 @@ void deletetree(struct node *root){
             \bigskip
             \item $(f | i \mapsto j)$ represent the partial function that behaves like $f$ except that $i$ goes to $j$.
         \end{enumerate}
+
+        \bigskip
+        $E \mapsto F_0,\cdots,F_n \triangleq (E \mapsto F_0) \ast \cdots \ast (E+n \mapsto F_n)$
+        
+        \medskip
+        $E \doteq F \triangleq (E=F) \wedge emp$
+
+        \medskip
+        $ E \mapsto - \triangleq \exists y.E\mapsto y$
     \end{frame}
     \begin{frame}
         \frametitle{Semantics}
@@ -257,7 +267,151 @@ void deletetree(struct node *root){
 
     \end{frame}
     \subsection{SL proofs}
+        \begin{frame}
+            \frametitle{Core system}
+            Proof rules in seapartion logic  are divide in:\begin{enumerate}
+                \item Axioms for basic mutation commands $\rightarrow$ \emph{Small axioms}
+                \item Inference rules for modular reasoing $\rightarrow$ \emph{Structural rules}
+            \end{enumerate}
+        \end{frame}
+        \begin{frame}
+            \frametitle{Small axioms}
+             
+            \pause
+            $\{E \mapsto - \}\mathbf{[E] := F}\{ E \mapsto F \} $ ("Store")
+            
+            \bigskip
+            \pause
+            $ \{E \mapsto -\} \mathbf{free(E)} \{emp\}$ ("Reclaim memory")
+           
+            \bigskip
+            \pause 
+            $ \{x\doteq m \}\mathbf{x:=cons(E_1,\cdots,E_k)} \{x \mapsto E_1[m/x],\cdots, E_k[m/x]\}$ ("Allocate memory")
+            
+            \bigskip
+            \pause 
+            $ \{x \doteq n\}\mathbf{x := E} \{ x \doteq (E[n/x])\}$ 
+            
+            \bigskip
+            \pause 
+            $ \{E \mapsto n \wedge  x = m\}\mathbf{x:=[E]} \{x=n \wedge E[m/x] \mapsto n\}$  ("Load")
+    
+           
+        \end{frame}
+        \begin{frame}
+            \frametitle{Structural rules}
+            \scriptsize
+            \textbf{Frame Rule}
+            $$
+            \infer[Mod(C) \cap  Free(frame) = \emptyset]
+            {\{P \ast \textcolor{red}{frame}\}C\{Q \ast \textcolor{red}{frame}\}}
+            {\{P\}C\{Q\}}$$
+
+            \pause
+            \textbf{Auxiliary variable elimination}
+            $$
+            \infer[x \notin Free(C)]
+            {\{\exists x.P\}C\{\exists x.Q\}}
+            {\{P\}C\{Q\} }
+            $$
+        \end{frame}
+        \begin{frame}
+            \frametitle{Structural rules}
+            \scriptsize
+           \textbf{Variable substitution}
+           $$
+           \infer[]
+           {(\{P\}C\{Q\})[E_1 / x_1, \cdots E_k /x_k] }
+           {\{P\}C\{Q\} }$$
+           $$
+           x_i\ free\ and\ if\ x_i \in Mod(C)\ then\ E_i\ is\ not\ free\ in\ any\ E_j$$
+           
+           \pause
+           \textbf{Rule of consequence}
+            $$
+            \infer[]
+            {\{P\}C\{Q'\}}
+            {P \Rightarrow P' \quad \{P\}C\{Q\} \quad Q \Rightarrow Q'}$$
+        
+        \end{frame}
+    \begin{frame}
+        \frametitle{Derived laws}
+        The structural rules can be used to obtain more convenient derived laws.
+        
+        As an example, we can simplify the rule for memory allocation by assuming $x \notin Free(E_1,\cdots,E_k)$.
+        $$
+        \{emp\}x:=cons(E_1,\cdots, E_k)\{x \mapsto E_1,\cdots,E_k\}
+        $$
+        \pause
+
+        \bigskip
+
+        The core system can also be extended with the usual Hoare rules
+        \begin{columns}
+            \begin{column}{.5\textwidth}
+                $$
+                \infer[]{\{P\}if\ B\ then\ C\ else\ C'\{Q\}}{\{P \wedge B \}C\{Q\} \quad  \{P \wedge \neg B\}C\{Q\}}
+                $$
+            \end{column}
+        \end{columns}
+    \end{frame}
     \subsection{Examples}
+    \begin{frame}[fragile]
+        \frametitle{Revisiting the tree example}
+        \scriptsize
+    \begin{lstlisting}
+void deletetree(struct node *root){
+    if(root != NULL){
+    struct node *left = root->l;
+    struct node *right = root->r;
+    deletetree(left);
+    deletetree(right);
+    free(root);
+    }
+}
+    \end{lstlisting}
+    
+    \pause
+
+    \textbf{Specification:}
+    
+    \bigskip
+    \textcolor{blue}{\{tree(root)\}} deletetree(root) \textcolor{blue}{\{emp\}}
+    
+    \medskip
+    \begin{flalign*}
+        \text{\textcolor{red}{tree(root)}}\ =\ &if\ root==0\ then\ \textcolor{blue}{emp} && \\ 
+        &else\ \textcolor{blue}{\exists xy.root \mapsto [l:x,r:y] \ast tree(x) \ast tree(y)} &&
+    \end{flalign*}
+   
+    
+
+    \end{frame}
+    \begin{frame}
+    \textbf{Proof:}
+    \begin{flalign*}
+        \{&\textcolor{red}{root \mapsto [l:left,r:right]} \ast \textcolor{blue}{tree(left)} \ast \textcolor{red}{tree(red)}\}&&
+    \end{flalign*}
+    \pause
+    $deletetree(left);$
+    \pause
+    \begin{flalign*}
+        \{&\textcolor{red}{root \mapsto [l:left,r:right]} \ast \textcolor{red}{emp} \ast \textcolor{blue}{tree(red)}\}&&
+    \end{flalign*}
+    \pause
+    $deletetree(right);$
+    \pause
+    \begin{flalign*}
+        \{&\textcolor{blue}{root \mapsto [l:left,r:right]} \ast \textcolor{red}{emp} \ast \textcolor{red}{emp}\}&&
+    \end{flalign*}
+    \pause
+    $free(root);$
+    \pause
+    \begin{flalign*}
+        \{&\textcolor{blue}{emp \ast emp \ast emp}\}&&\\
+        \{&\textcolor{blue}{emp}\}&&
+    \end{flalign*}
+    \end{frame}
     \section{Reasoning with separation logic}
     \subsection{Abstract Interpretation: Biabduction and symbolic heap  analysis}
     \subsection{Model Checking for Symbolic-Heap Separation Logic }
