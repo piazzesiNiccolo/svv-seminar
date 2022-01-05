@@ -118,14 +118,65 @@ void deletetree(struct node *root){
     \end{frame}
     \begin{frame}
         \frametitle{First attempt}
+        \begin{columns}[t]
+            \begin{column}{.6\textwidth}
+                \textbf{Specification}
+                
+                \vspace{1cm}
+                $\{h:\ tree(t,h)\}$
 
+                $deletetree(t)$
+                
+                \onslide<1-5>{
+                $\{h': true\}$
+                }
+                
+                \onslide<6 ->{
+                $\{h': \forall p, h'[p]=h[p]$
+                
+                if p is not in the tree \}
+                }
+
+               
+            \end{column}
+            \begin{column}{.4\textwidth}
+                \textbf{Proof}
+
+                \pause
+                \begin{flalign*}
+                \{&h: h[t]=[l,r]&& \\
+                        &\wedge tree(l,h)&& \\ 
+                        &\wedge tree(r,h)&& \\
+                        &\wedge t,l,r\ distinct\}&&
+                \end{flalign*}
+                \pause 
+                $deletetree(l)$
+                \pause
+                
+                \onslide<4-5>{
+                $\{h':true\}$ }
+                \scriptsize
+                
+                \onslide<5>{
+                We can't prove safety of tree(r,h)!
+                }
+
+                \onslide<7->{
+                How can we be sure that deletetree(l) 
+                
+                does not modify tree(r,h)? 
+                We should say that in tree(t,h)...
+                }
+            \end{column}
+        \end{columns}
+        
         
     \end{frame}
     \section{Theoretical Foundations}
     \subsection{The model and assertion language}
     \begin{frame}
         \frametitle{The model}
-        \begin{columns}
+        \begin{columns}[t]
             \begin{column}[]{.5\textwidth}
                 Ints $\triangleq \{\cdots, -1, 0 , 1, \cdots\}$
                 
@@ -412,9 +463,94 @@ void deletetree(struct node *root){
         \{&\textcolor{blue}{emp}\}&&
     \end{flalign*}
     \end{frame}
-    \section{Reasoning with separation logic}
-    \subsection{Abstract Interpretation: Biabduction and symbolic heap  analysis}
-    \subsection{Model Checking for Symbolic-Heap Separation Logic }
+    \section{Extension to concurrency}
+    \section{Biabduction}
+    \begin{frame}
+        Proofs in SL are very simple by design, but automation
+
+        is needed to scale the analysis to large programs. 
+        
+        To fully automate proofs we need a way to infer pre and post conditions from bare code.
+        
+        
+        \bigskip
+        In SL this is solved with \textbf{bi-abduction}
+        \pause
+        \begin{card} 
+            $$
+            (A \ast \textcolor{red}{?antiframe} \vdash B \ast \textcolor{blue}{?frame})
+            $$
+        \end{card}
+        \bigskip
+        \emph{Can we find a pair of \textcolor{blue}{frame} and \textcolor{red}{antiframe} that make the entailment valid?}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Biabduction in action}
+
+        Suppose we have the code
+        \begin{center}
+            (closeResource(r1);closeResource(r2))
+        \end{center}
+        A human would say that we can execute closeResource(r1) only if we have
+        $r1 \mapsto open$.
+
+        The equivalent biabduction question is
+        \begin{card}
+            $(emp \ast \textcolor{red}{?antiframe} \vdash r1 \mapsto open \ast \textcolor{blue}{?frame})$
+        \end{card}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Biabduction in action}
+        $(emp \ast \textcolor{red}{?antiframe} \vdash r1 \mapsto open \ast \textcolor{blue}{?frame})$
+        \small
+        
+        \bigskip
+        \pause
+        $(\textcolor{red}{antiframe} = r1 \mapsto open),\ (\textcolor{blue}{frame}=emp)$
+
+        \bigskip
+        \pause
+        $ (emp \ast r1 \mapsto open \vdash r1 \mapsto open \ast emp)$
+
+        $ ( r1 \mapsto open \vdash r1 \mapsto open)$
+
+        \bigskip
+        \pause
+        $\textcolor{red}{\{r1 \mapsto open\}}$
+        
+        $(closeResource(r1))$
+        
+        $\textcolor{blue}{\{r1 \mapsto closed\}}$
+
+        \bigskip
+        \pause
+        \normalsize
+        Let's now consider $closeResource(r2)$
+
+    \end{frame}
+    \begin{frame}
+        \frametitle{Biabduction in action}
+        $(r1\mapsto closed \ast \textcolor{red}{?antiframe} \vdash r2 \mapsto open \ast \textcolor{blue}{?frame})$
+        \small
+
+        \bigskip
+        \pause
+        $(\textcolor{red}{antiframe} = r2 \mapsto open),\ (\textcolor{blue}{frame}=r1 \mapsto closed)$
+
+        \bigskip
+        \pause
+        
+        $\textcolor{red}{(\{r1 \mapsto open \ast r2 \mapsto open\})}$
+        
+        $\textcolor{red}{(closeResource(r1))}$
+        
+        $\textcolor{red}{(\{r1 \mapsto closed \ast r2 \mapsto open\})}$
+        
+        $(closeResource(r2))$
+
+        $\textcolor{blue}{\{r1 \mapsto closed,\ r2 \mapsto closed\}}$
+
+    \end{frame}
     \section{Tools}
     \subsection{Smallfoot}
     \subsection{Infer}
