@@ -320,9 +320,9 @@ void deletetree(struct node *root){
     \subsection{SL proofs}
         \begin{frame}
             \frametitle{Core system}
-            Proof rules in seapartion logic  are divide in:\begin{enumerate}
+            Proof rules in separation logic  are divided in:\begin{enumerate}
                 \item Axioms for basic mutation commands $\rightarrow$ \emph{Small axioms}
-                \item Inference rules for modular reasoing $\rightarrow$ \emph{Structural rules}
+                \item Inference rules for modular reasoning $\rightarrow$ \emph{Structural rules}
             \end{enumerate}
         \end{frame}
         \begin{frame}
@@ -551,7 +551,26 @@ void deletetree(struct node *root){
         $\textcolor{blue}{\{r1 \mapsto closed,\ r2 \mapsto closed\}}$
 
     \end{frame}
-    \section{Tools}
+
+    \begin{frame}
+        \frametitle{Other work on SL}
+
+        \begin{itemize}
+            \item Abstract interpretation:
+            
+            \medskip
+            \emph{Compositional Shape Analysis by means of Bi-Abduction} \cite{calcagno2009compositional}
+
+            \bigskip
+            \item  Model checking:
+            
+            \medskip
+            \emph{Model Checking for Symbolic-Heap Separation Logic with
+Inductive Predicates} \cite{modelchecking}
+        \end{itemize}
+    \end{frame}
+    \section{Tools} 
+    In the last years separation logic
     \subsection{Smallfoot}
     \subsection{Infer}
     \subsection{SLAyer}
