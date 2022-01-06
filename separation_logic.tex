@@ -1,29 +1,17 @@
-\documentclass[professionalfont]{beamer}
+\documentclass{beamer}
 \usepackage{babel}
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{tikz}
 \usepackage{graphicx}
 \usepackage{stmaryrd}
 \usepackage{xcolor}
+\usepackage{tikz}
 \usepackage{proof}
-\usepackage{simplebnf}
 \usepackage{listings}
 \usepackage{amsmath}
 \usetheme{material}
-
-\usetikzlibrary{
-    arrows,
-    positioning,
-    shapes,
-    quotes
-}
-\newcommand{\nodes}[1]{%
-    \foreach \num [count=\n starting from 0] in {#1}{
-      \node[minimum size=3mm, draw, circle,fill=black!10] (n\n) at (\n,0) {\textbf{\num}};
-    }
-}
+\usefonttheme{professionalfonts}
 \lstset{language=C++,
         basicstyle={\scriptsize\ttfamily},
         keywordstyle=\color{blue}\ttfamily,
@@ -39,14 +27,12 @@
 }
 \title{Separation Logic}
 \author{Niccolò Piazzesi}
-\institute[UniPi]{
-    Università degli studi di Pisa \\
-    Anno Accademico 2021-22
+\institute{
+    Università degli studi di Pisa
 }
+\titlegraphic{\includegraphics[width=2cm]{img/logo.png}}
 \begin{document}
-    \begin{frame}
-        \maketitle
-    \end{frame}
+  \frame{\titlepage}
     \begin{frame}{Outline}
         \tableofcontents[hideallsubsections]
     \end{frame}
@@ -74,10 +60,10 @@
         \end{itemize}
         \bigskip
         
-        Partial correctness: \textbf{If the inital state fullfils pre-conditions and the statement terminates}, the final state satisfies the post conditions.
+        Partial correctness: \textbf{If the initial state fulfils pre-conditions and the statement terminates}, the final state satisfies the post conditions.
         \medskip
 
-        Total correctness: \textbf{If the initial state fullfils the pre-conditions} then the statement terminates and the final state satisfies the post-conditions.
+        Total correctness: \textbf{If the initial state fulfils the pre-conditions} then the statement terminates and the final state satisfies the post-conditions.
     \end{frame}
 
     \begin{frame}
@@ -173,6 +159,19 @@ void deletetree(struct node *root){
         
     \end{frame}
     \section{Theoretical Foundations}
+    \begin{frame}
+        \frametitle{History}
+        \begin{card}
+            Work on Separation Logic began in the late 90's and was focused 
+            on providing a simpler model for proofs of programs manipulating pointers. 
+        \end{card}
+        \begin{card}
+            Major contributors: \textbf{O'Hearn, Reynolds, Yang, Calcagno,  Distefano, Brookes} et others
+        \end{card}
+        \begin{cardTiny}
+        SL provides a language to describe properties and a proof system to validate such properties.
+        \end{cardTiny}
+    \end{frame}
     \subsection{The model and assertion language}
     \begin{frame}
         \frametitle{The model}
@@ -464,6 +463,102 @@ void deletetree(struct node *root){
     \end{flalign*}
     \end{frame}
     \section{Extension to concurrency}
+    \begin{frame}
+        \frametitle{Concurrent separation logic}
+        
+        \begin{card}
+            
+            While Separation Logic was worked on primarily as a logic
+            to  reason about pointer manipulation, it has been successfully 
+            extended to handle concurrency of processes sharing some "resources" (usually memory).
+        \end{card}
+        \begin{card}
+        Since 2002, work by Brookes,O'Hearn and others \cite{brookes2016concurrent}
+
+        has been fundamental for the advancement both in theory and applications of SL.
+
+        Here we will see the fundamentals aspect of this extension.
+        \end{card}
+    \end{frame}
+    \begin{frame}
+        \frametitle{The new rules}
+        There are two main new rules in CSL (Concurrent Separation Logic).
+        
+        \small
+        \bigskip
+        \textbf{Parallel composition rule}
+        $$
+        \infer[]{\{P_1 \ast \cdots P_n\}C_1 || \cdots || C_n\{Q_1 \ast Q_n\}}{\{P_1\}C_1\{Q_1\} \cdots \{P_n\}C_n\{Q_n\}}
+        $$
+
+        \pause
+
+        \textbf{Critical region Rule}
+        $$
+        \infer[]{\{P\}\ with\ r\ when\ B\ do\ C\ \{Q\}}{\{(P \ast RI_r) \wedge B\}C\{Q \ast RI_r\}}
+        $$
+
+        $RI_r$ is a "resource invariant"  given to each resource $r$ appearing in the program.
+    \end{frame}
+    \begin{frame}
+        \frametitle{Proof outline for parallel mergeSort}
+        \begin{center}
+        \hspace{-20mm}$\{array(a,i,m) \ast array(a,m+1,j)\}$
+        \end{center}
+        \begin{columns}[T]
+            \begin{column}{.5\textwidth}
+                    \onslide<2->{
+                    $\{array(a,i,m)\}$
+                    }
+                    
+
+                    \onslide<3->{
+                    $ms(a,i,m)$
+                    }
+                    
+                    \onslide<4->{
+                    $\{sorted(a,i,m)\}$
+                    }
+            \end{column}
+            \begin{column}{.5\textwidth}
+                \onslide<2->{
+                $\{array(a,m+1,j)\}$
+                }
+                
+                \onslide<3->{
+                $ms(a,m+1,j)$
+                }
+                
+                \onslide<4->{
+                $\{sorted(a,m+1,j)\}$
+                }
+            \end{column}
+        \end{columns}
+        \begin{center}
+            \onslide<5->{
+            \hspace{-20mm}$\{sorted(a,i,m) \ast sorted(a,m+1,j)\}$
+            }
+        \end{center}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Semantics}
+         Based on two principles: \begin{itemize}
+             \item \emph{Ownership hypothesis.} A code fragment can access only those portions 
+             of state that it owns.
+             \item  \emph{Separation Property.} At any time, the state can be partitioned  into that owned by each process 
+             and each grouping of mutual exclusion
+         \end{itemize}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Semantics}
+        The key features of CSL semantics are: \begin{itemize}
+            \item a compositional action-trace semantics 
+            \item a race detecting interpretation of parallel composition 
+            \item a global state interpretation  of actions and traces 
+            \item a local-state interpretation of action and traces, that enables the formalization 
+            of ownership transfer and separation principle
+        \end{itemize}
+    \end{frame}
     \section{Biabduction}
     \begin{frame}
         Proofs in SL are very simple by design, but automation
@@ -570,10 +665,57 @@ Inductive Predicates} \cite{modelchecking}
         \end{itemize}
     \end{frame}
     \section{Tools} 
-    In the last years separation logic
-    \subsection{Smallfoot}
-    \subsection{Infer}
-    \subsection{SLAyer}
+    
+    \begin{frame}
+      \frametitle{Smallfoot}
+        \begin{card}
+            
+            The first formal verification tool to make use of SL
+        \end{card}
+
+        \begin{card}
+            It takes an input language that describes procedures together with pre and post conditions
+            and discover proofs through symbolic execution
+        \end{card}
+
+        \begin{card}
+            Although the tool is more demonstrative than practical, it was fundamental for future work, 
+            which were heavily inspired by the design and proof system of Smallfoot
+        \end{card}
+    \end{frame}
+    \begin{frame}
+        \frametitle{SLAyer}
+
+        \begin{card}
+            An open source tool by Microsoft that uses separation 
+            logic to prove memory safety of C programs.
+        \end{card}
+        \begin{card}
+            Inspired by the work on Smallfoot, it doesn't require any 
+            manual specification but works directly on code.
+        \end{card}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Infer}
+        
+        \begin{card}
+            Infer is the static analysis tool used at Facebook.
+            
+            It takes Java/C/C++/Obj-C code in inputs and produces
+            
+            a list of potential bugs
+        \end{card}
+        
+        \begin{card}
+            It exploits SL locality and compositionality, and works on source \emph{diffs} instead of the entire codebase
+        \end{card}
+        \begin{tikzpicture}[overlay,remember picture]
+    \node[right=5cm] at (current page.210){
+    \includegraphics[width=1cm]{img/infer.png}
+    };
+    \end{tikzpicture}
+    \end{frame}
+
     \begin{frame}[allowframebreaks]
      
         \nocite{*}
